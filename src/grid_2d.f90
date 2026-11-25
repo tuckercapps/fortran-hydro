@@ -19,6 +19,9 @@ program grid_2d
   integer :: i
   integer :: j
   integer :: t
+
+  integer :: u
+  character(len=32) :: fname
   
   ! Define the 2D grid
   real, dimension(length, length) :: uold = 0.0
@@ -42,13 +45,24 @@ program grid_2d
   uold(:,length) = uold(:,2)
 
   ! Time stepping loop
-  do t=1, num_steps
-    do i=2, length-1
-        do j=2, length-1
-            ! Looping over all physical cells. The first physical cells are down wind of the ghost first cells.
-            unew(i,j) = uold(i,j) - a * delta_t / delta_x * (uold(i,j) - uold(i-1,j)) - a * delta_t / delta_x * (uold(i,j) - uold(i,j-1))
-        end do
+  do t=1, num_steps+1
+    !do i=2, length-1
+    !    do j=2, length-1
+    !        ! Looping over all physical cells. The first physical cells are down wind of the ghost first cells.
+    !        unew(i,j) = uold(i,j) - a * delta_t / delta_x * (uold(i,j) - uold(i-1,j)) - a * delta_t / delta_x * (uold(i,j) - uold(i,j-1))
+    !    end do
+    !end do
+
+    write(fname, '(a,i4.4,a)') 'u_', t, '.dat'   ! builds u_0001.dat, u_0002.dat, ...
+    open(newunit=u, file=fname, status='replace')
+    do i = 2, length-1
+      write(u, '(*(es12.4))') uold(i, 2:length-1)
     end do
+    close(u)
+
+    unew(2:length-1, 2:length-1) = uold(2:length-1, 2:length-1) &
+        - a*delta_t/delta_x*(uold(2:length-1, 2:length-1) - uold(2:length-1, 1:length-2)) &
+        - a*delta_t/delta_x*(uold(2:length-1, 2:length-1) - uold(1:length-2, 2:length-1))
 
     ! Update ghost cells
     unew(1,:) = unew(length-1,:)  ! the first ghost column is equal to the last physical column
@@ -60,12 +74,6 @@ program grid_2d
     uold = unew
   end do  
 
-
-
-
-  
-
-  
 
 end program grid_2d
 

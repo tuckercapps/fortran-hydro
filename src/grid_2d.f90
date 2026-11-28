@@ -8,14 +8,14 @@ program grid_2d
   ! Start with periodic boundary conditions [0, 1]
   ! the number of elements will be decided by delta_x
 
-  real, parameter :: delta_x = 0.1
-  real, parameter :: delta_y = 0.1
+  real, parameter :: delta_x = 0.005
+  real, parameter :: delta_y = 0.005
   integer, parameter :: nx = int(1.0/delta_x) + 2
   integer, parameter :: ny = int(1.0/delta_y) + 2
 
   ! Time stepping parameters
-  real, parameter :: delta_t = 0.05
-  integer, parameter :: num_steps = 200
+  real, parameter :: delta_t = 0.0025
+  integer, parameter :: num_steps = 500
 
   ! Advection speed
   real, parameter :: a = 1.0
@@ -76,10 +76,10 @@ program grid_2d
     close(u)
 
     !print *, uL_x(1,1)
-    call piecewise_constant(uold, uL_x, uR_x, uL_y, uR_y, nx, ny)
+    call piecewise_constant(uold, uL_x, uR_x, uL_y, uR_y)
     flux_x = rusanov(uL_x, uR_x, a_x)
     flux_y = rusanov(uL_y, uR_y, a_y)
-    print *, shape(uR_x)!
+    !print *, shape(uR_x)!
     !printshape(flux_x)
    ! print *, uL_x(1,1)
 
@@ -88,8 +88,8 @@ program grid_2d
     !    - a_y*delta_t/delta_x*(uold(2:nx-1, 2:ny-1) - uold(1:nx-2, 2:ny-1))
 
     unew(2:nx-1, 2:ny-1) = uold(2:nx-1, 2:ny-1) &
-        - delta_t/delta_x*(flux_x(2:nx-2, 2:ny-2) - flux_x(1:nx-1, 1:ny-2)) &
-        - delta_t/delta_x*(flux_y(2:nx-2, 2:ny-2) - flux_y(1:nx-2, 2:ny-1))
+        - delta_t/delta_x*(flux_x(2:nx-1, 1:ny-2) - flux_x(1:nx-2, 1:ny-2)) &
+        - delta_t/delta_y*(flux_y(1:nx-2, 2:ny-1) - flux_y(1:nx-2, 1:ny-2))
 
     
 
